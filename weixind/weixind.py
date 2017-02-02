@@ -39,7 +39,7 @@ class WeixinD:
         self.payment_names = [u'微信支付', u'广发信用卡', u'招商银行信用卡', u'手机充值', u'FarBox']
 
     def initialize(self):
-        itchat.auto_login(True)
+        itchat.auto_login(enableCmdQR=True, hotReload=True)
         self.mps = itchat.get_mps(update=False)
 
     def get_user_name_by_id(self, userId):
