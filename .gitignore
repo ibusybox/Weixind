@@ -87,3 +87,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+weixind.sublime-project
+weixind.sublime-workspace
