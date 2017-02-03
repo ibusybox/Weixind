@@ -73,7 +73,7 @@ def mp_msg_reply(msg):
     PYQuanPin = user.get('PYQuanPin')
     if nickName in weixind.payment_names:
         weixind.save_msg(PYQuanPin, msg)
-        itchat.send('%s: %s' % (msg['Type'], msg['Text']), msg['FromUserName'])
+        #itchat.send('%s: %s' % (msg['Type'], msg['Text']), msg['FromUserName'])
     # print msg['Content']
     # itchat.send('%s: %s' % (msg['Type'], msg['Text']), msg['FromUserName'])
 
