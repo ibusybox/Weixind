@@ -41,13 +41,13 @@ class WeixinD:
     def initialize(self):
         itchat.auto_login(enableCmdQR=True, hotReload=True)
         self.mps = itchat.get_mps(update=False)
+        #with open('mps.json', 'w+') as fp:
+        #    fp.write(json.dumps(self.mps))
 
-    def get_user_name_by_id(self, userId):
-        print "get user name by id: %s" % userId
+    def get_user_by_id(self, userId):
         for user in self.mps:
-            print "try user: %s" % user.get('UserName')
             if userId == user.get('UserName'):
-                return user.get('NickName')
+                return user
         return None
 
     def save_msg(self, fromUser, msg):
@@ -60,7 +60,7 @@ class WeixinD:
             fp.write(json.dumps(msg, indent=4))
 
     def start(self):
-        itchat.run(debug=True)        
+        itchat.run(debug=True)
 
 
 weixind = WeixinD()
@@ -68,9 +68,11 @@ weixind = WeixinD()
 
 @itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING], isMpChat=True)
 def mp_msg_reply(msg):
-    nickName = weixind.get_user_name_by_id(msg['FromUserName'])
+    user = weixind.get_user_by_id(msg['FromUserName'])
+    nickName = user.get('NickName')
+    PYQuanPin = user.get('PYQuanPin')
     if nickName in weixind.payment_names:
-        weixind.save_msg(nickName, msg)
+        weixind.save_msg(PYQuanPin, msg)
         itchat.send('%s: %s' % (msg['Type'], msg['Text']), msg['FromUserName'])
     # print msg['Content']
     # itchat.send('%s: %s' % (msg['Type'], msg['Text']), msg['FromUserName'])
