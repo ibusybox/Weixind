@@ -2,11 +2,8 @@
 # coding=utf8
 
 import itchat
-import time
 from itchat.content import *
-import json
-import os
-from os.path import expanduser
+import weixinmsghandler
 
 '''
 @itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING])
@@ -36,43 +33,30 @@ class WeixinD:
 
     def __init__(self):
         self.mps = []
-        self.payment_names = [u'微信支付', u'广发信用卡', u'招商银行信用卡', u'手机充值', u'FarBox']
+        self.friends = []
 
     def initialize(self):
         itchat.auto_login(enableCmdQR=True, hotReload=True)
         self.mps = itchat.get_mps(update=False)
-        #with open('mps.json', 'w+') as fp:
-        #    fp.write(json.dumps(self.mps))
+        self.friends = itchat.get_friends(update=False)
 
-    def get_user_by_id(self, userId):
-        for user in self.mps:
+    def get_friend_by_id(self, userId):
+        for user in self.friends:
             if userId == user.get('UserName'):
                 return user
         return None
 
-    def save_msg(self, fromUser, msg):
-        home = expanduser("~")
-        msgHome = '%s/weixinmsg/%s' % (home, fromUser)
-        if not os.path.isdir(msgHome):
-            os.makedirs(msgHome)
-        msgFile = os.path.join(msgHome, '%s.json' % msg['MsgId'])
-        with open(msgFile, 'w+') as fp:
-            fp.write(json.dumps(msg, indent=4))
-
     def start(self):
         itchat.run(debug=True)
-
 
 weixind = WeixinD()
 
 
-@itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING], isMpChat=True)
-def mp_msg_reply(msg):
-    user = weixind.get_user_by_id(msg['FromUserName'])
-    nickName = user.get('NickName')
-    PYQuanPin = user.get('PYQuanPin')
-    if nickName in weixind.payment_names:
-        weixind.save_msg(PYQuanPin, msg)
+@itchat.msg_register([TEXT, MAP, CARD, NOTE, SHARING, RECORDING, VIDEO, ATTACHMENT, SYSTEM, PICTURE], isFriendChat=True, isGroupChat=False, isMpChat=False)
+def friend_msg(msg):
+    user = weixind.get_friend_by_id(msg['FromUserName'])
+    nick_name = user.get('NickName')
+    weixinmsghandler.handle_friend_msg(nick_name, msg)
         #itchat.send('%s: %s' % (msg['Type'], msg['Text']), msg['FromUserName'])
     # print msg['Content']
     # itchat.send('%s: %s' % (msg['Type'], msg['Text']), msg['FromUserName'])
